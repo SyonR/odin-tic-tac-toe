@@ -12,11 +12,12 @@ function GameBoard() {
 
     const getBoard = () => board;
 
-    const putToken = (row, col, player) => {
+    const putToken = (row, col, playerToken) => {
         if (board[row][col].getValue() === 0) {
-            board[row][col].addToken(player);
+            board[row][col].addToken(playerToken);
+            console.log("Token added.");
         } else {
-            console.log("didn't add token");
+            console.log("Token wasn't added.");
         }
     };
 
@@ -72,39 +73,48 @@ function GameController(
     };
 
     const playRound = (row, column) => {
-        console.log(`${getActivePlayer().name}'s token is put into row ${row} column ${column}`);
+        console.log(`Attempting to put ${getActivePlayer().name}'s token into row ${row} column ${column}`);
         board.putToken(row, column, getActivePlayer().token);
+
         /* Winnger logic & message */
-        
-        // row check
+        console.log(`Token is ${getActivePlayer().token}`)
+        // row and column check
         for (let i = 0; i < 3; i++) {
-            if (board.getBoard()[i][i].getValue() && 
-            board.getBoard()[i][i+1].getValue() && 
-            board.getBoard()[i][i+2].getValue() == getActivePlayer().token)
-                console.log(`${getActivePlayer().name} won`)  
+            if (board.getBoard()[i][0].getValue() == getActivePlayer().token && 
+            board.getBoard()[i][1].getValue() == getActivePlayer().token && 
+            board.getBoard()[i][2].getValue() == getActivePlayer().token)
+                console.log(`${getActivePlayer().name} won`);
+
+            if (board.getBoard()[0][i].getValue() == getActivePlayer().token && 
+            board.getBoard()[1][i].getValue() == getActivePlayer().token && 
+            board.getBoard()[2][i].getValue() == getActivePlayer().token)
+                console.log(`${getActivePlayer().name} won`);
         }
-        // col check
-        for (let j = 0; j < 3; j++) {
-            if (board.getBoard()[j][j].getValue() && 
-            board.getBoard()[j+1][j].getValue() && 
-            board.getBoard()[j+2][j].getValue() == getActivePlayer().token)
-                console.log(`${getActivePlayer().name} won`)  
-        }
+
         // diagonal check
-        let m = 0
-        let n = 0
-        if (board.getBoard()[m][n].getValue() && 
-        board.getBoard()[m+1][n+1].getValue() && 
+        let m = 0;
+        let n = 0;
+        if (board.getBoard()[m][n].getValue() == getActivePlayer().token && 
+        board.getBoard()[m+1][n+1].getValue() == getActivePlayer().token && 
         board.getBoard()[m+2][n+2].getValue() == getActivePlayer().token)
-            console.log(`${getActivePlayer().name} won`)
-        if (board.getBoard()[m][n+2].getValue() && 
-        board.getBoard()[m+1][n+1].getValue() && 
+            console.log(`${getActivePlayer().name} won`);
+        if (board.getBoard()[m][n+2].getValue() == getActivePlayer().token && 
+        board.getBoard()[m+1][n+1].getValue() == getActivePlayer().token && 
         board.getBoard()[m+2][n].getValue() == getActivePlayer().token)
-            console.log(`${getActivePlayer().name} won`)
+            console.log(`${getActivePlayer().name} won`);
 
+        // check if everything is filled
+        const availableCells = board.getBoard()
+        .flat()
+        .filter((cell) => cell.getValue() == 0).length
+        
+        console.log(`${availableCells} cells left`);
 
-        switchPlayerTurn()
-        printNewRound()
+        if (!availableCells)
+            console.log("Board is filled. Tie!");
+
+        switchPlayerTurn();
+        printNewRound();
     };
     
     printNewRound(); 
