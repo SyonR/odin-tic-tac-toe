@@ -51,11 +51,11 @@ function GameController(
     const players = [
         {
             name: playerOneName,
-            token: 1,
+            token: "X",
         },
         {
             name: playerTwoName,
-            token: 2,
+            token: "O",
         }
     ];
 
@@ -122,7 +122,75 @@ function GameController(
     return { playRound, getActivePlayer, getBoard: board.getBoard };
 }
 
-const game = GameController("Player 1", "Player 2");
-console.log("game loaded");
+function ScreenController() {
+    let playerOneName;
+    let playerTwoName;
+    let game;
 
+    const playerTurnDiv = document.querySelector(".turn");
+    const boardDiv = document.querySelector(".board");
+    const startMenu = document.querySelector("#start-menu");
+    const startMenuCloseButton = document.querySelector("#start-menu-close-button");
 
+    const updateScreen = () => {
+        boardDiv.textContent = "";
+
+        const activePlayer = game.getActivePlayer();
+        const board = game.getBoard();
+
+        playerTurnDiv.textContent = `${activePlayer.name}'s Turn`;
+        
+        board.forEach((row, rowIndex) => {
+            row.forEach((cell, columnIndex) => {
+                const cellButton = document.createElement("button");
+                cellButton.classList.add("cell");
+                cellButton.dataset.column = columnIndex;
+                cellButton.dataset.row = rowIndex;
+                cellButton.textContent = cell.getValue();
+                boardDiv.appendChild(cellButton);
+            });
+        });
+
+        console.log("Screen has been updated");
+    };
+
+    function clickHandlerBoard(e) {
+        const selectedColumn = e.target.dataset.column;
+        const selectedRow = e.target.dataset.row;
+        const board = game.getBoard(); //CANT INITIALIZE IN FUNCTION BECAUSE IT MAY NOT HAVE BEEN INTIALIZED YET
+
+        if ((!selectedColumn) || (!selectedRow)) {
+            e.preventDefault();
+            return;
+        }; //THIS WORKS BECAUSE SELECTED ROW AND COLUMN ARE STRINGS SO "0" IS TRUTHY!
+
+        if (board[selectedRow][selectedColumn].getValue() != "0") {
+            console.log("THIS CELL IS TAKEN");
+            e.preventDefault();
+            return;
+        }
+
+        game.playRound(selectedRow, selectedColumn);
+        updateScreen();
+    }
+
+    function clickStartGame(e) {
+        playerOneName = document.getElementById("player1").value;
+        playerTwoName = document.getElementById("player2").value;
+        
+        if ((!playerOneName) || (!playerTwoName)) {
+            e.preventDefault();
+            return;
+        };
+
+        game = GameController(playerOneName, playerTwoName);    
+        updateScreen();
+    }
+    
+    boardDiv.addEventListener("click", clickHandlerBoard);
+    startMenuCloseButton.addEventListener("click", clickStartGame);
+
+    startMenu.showModal();
+}
+
+ScreenController();
