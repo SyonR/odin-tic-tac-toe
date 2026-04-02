@@ -42,3 +42,10 @@ form {
 #start-menu-close-button:hover {
     background: lightgray;
 }
+
+#results:open {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}

@@ -47,6 +47,7 @@ function GameController(
     playerTwoName
 ) {
     const board = GameBoard()
+    let winner;
 
     const players = [
         {
@@ -73,6 +74,8 @@ function GameController(
     };
 
     const playRound = (row, column) => {
+        const resultsModal = document.getElementById("results");
+
         console.log(`Attempting to put ${getActivePlayer().name}'s token into row ${row} column ${column}`);
         board.putToken(row, column, getActivePlayer().token);
 
@@ -82,13 +85,17 @@ function GameController(
         for (let i = 0; i < 3; i++) {
             if (board.getBoard()[i][0].getValue() == getActivePlayer().token && 
             board.getBoard()[i][1].getValue() == getActivePlayer().token && 
-            board.getBoard()[i][2].getValue() == getActivePlayer().token)
+            board.getBoard()[i][2].getValue() == getActivePlayer().token) {
                 console.log(`${getActivePlayer().name} won`);
+                winner = getActivePlayer().name;
+            }
 
             if (board.getBoard()[0][i].getValue() == getActivePlayer().token && 
             board.getBoard()[1][i].getValue() == getActivePlayer().token && 
-            board.getBoard()[2][i].getValue() == getActivePlayer().token)
+            board.getBoard()[2][i].getValue() == getActivePlayer().token) {
                 console.log(`${getActivePlayer().name} won`);
+                winner = getActivePlayer().name;
+            }
         }
 
         // diagonal check
@@ -96,12 +103,25 @@ function GameController(
         let n = 0;
         if (board.getBoard()[m][n].getValue() == getActivePlayer().token && 
         board.getBoard()[m+1][n+1].getValue() == getActivePlayer().token && 
-        board.getBoard()[m+2][n+2].getValue() == getActivePlayer().token)
+        board.getBoard()[m+2][n+2].getValue() == getActivePlayer().token) {
             console.log(`${getActivePlayer().name} won`);
+            winner = getActivePlayer().name;
+        }
         if (board.getBoard()[m][n+2].getValue() == getActivePlayer().token && 
         board.getBoard()[m+1][n+1].getValue() == getActivePlayer().token && 
-        board.getBoard()[m+2][n].getValue() == getActivePlayer().token)
+        board.getBoard()[m+2][n].getValue() == getActivePlayer().token) {
             console.log(`${getActivePlayer().name} won`);
+            winner = getActivePlayer().name;
+        }
+
+        console.log(`WINNER IS ${winner}`);
+
+        // check if there is winner
+        if (winner) {
+            const winnerMessage = resultsModal.querySelector("p");
+            winnerMessage.textContent = `${winner} has won.`
+            resultsModal.showModal();
+        }
 
         // check if everything is filled
         const availableCells = board.getBoard()
@@ -110,11 +130,14 @@ function GameController(
         
         console.log(`${availableCells} cells left`);
 
-        if (!availableCells)
-            console.log("Board is filled. Tie!");
-
-        switchPlayerTurn();
-        printNewRound();
+        if (!availableCells) {
+            const tieMessage = resultsModal.querySelector("p");
+            tieMessage.textContent = `Board is filled. Tie game.`
+            resultsModal.showModal();
+        } else {
+            switchPlayerTurn();
+            printNewRound();
+        }
     };
     
     printNewRound(); 
@@ -131,6 +154,7 @@ function ScreenController() {
     const boardDiv = document.querySelector(".board");
     const startMenu = document.querySelector("#start-menu");
     const startMenuCloseButton = document.querySelector("#start-menu-close-button");
+    const restartButton = document.getElementById("restart-button");
 
     const updateScreen = () => {
         boardDiv.textContent = "";
@@ -186,9 +210,20 @@ function ScreenController() {
         game = GameController(playerOneName, playerTwoName);    
         updateScreen();
     }
+
+    function clickRestartGame(e) {
+        const results = document.getElementById("results");
+        const modalMessage = results.querySelector("p");
+        boardDiv.textContent = "";
+        playerTurnDiv.textContent = "";
+        modalMessage.textContent = "";
+
+        ScreenController();
+    }
     
     boardDiv.addEventListener("click", clickHandlerBoard);
     startMenuCloseButton.addEventListener("click", clickStartGame);
+    restartButton.addEventListener("click", clickRestartGame);
 
     startMenu.showModal();
 }
